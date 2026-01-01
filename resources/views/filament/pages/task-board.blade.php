@@ -10,15 +10,15 @@
         
         .task-columns-wrapper {
             display: flex;
-            gap: 12px;
+            gap: 16px;
             overflow-x: auto;
             padding-bottom: 16px;
             align-items: flex-start;
         }
         
         .task-column {
-            min-width: 260px;
-            width: 260px;
+            flex: 1;
+            min-width: 300px;
             border-radius: 16px;
             display: flex;
             flex-direction: column;

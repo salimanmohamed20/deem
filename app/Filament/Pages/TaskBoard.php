@@ -24,6 +24,19 @@ class TaskBoard extends Page implements HasForms
     protected string $view = 'filament.pages.task-board';
 
     protected static ?int $navigationSort = 1;
+    
+    protected static bool $shouldRegisterNavigation = true;
+
+    public static function getNavigationBadge(): ?string
+    {
+        return null;
+    }
+
+    // Full width layout
+    public function getMaxContentWidth(): ?string
+    {
+        return 'full';
+    }
 
     public ?array $filters = [
         'project_id' => null,
