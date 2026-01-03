@@ -6,20 +6,26 @@ use App\Filament\Resources\TeamResource\Pages;
 use App\Filament\Resources\TeamResource\RelationManagers;
 use App\Models\Employee;
 use App\Models\Team;
+use App\Traits\HasRoleBasedAccess;
 use Filament\Forms;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Tables;
-use Filament\Actions;
 use Filament\Tables\Table;
+use Filament\Actions;
 use BackedEnum;
-use UnitEnum;
 
 class TeamResource extends Resource
 {
-    protected static ?string $model = Team::class;
+    use HasRoleBasedAccess;
 
+    protected static ?string $model = Team::class;
     protected static string|BackedEnum|null $navigationIcon = 'heroicon-o-user-group';
+
+    public static function shouldRegisterNavigation(): bool
+    {
+        return self::isSuperAdmin();
+    }
 
     public static function form(Schema $schema): Schema
     {
@@ -61,9 +67,7 @@ class TeamResource extends Resource
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
-            ->filters([
-                //
-            ])
+            ->filters([])
             ->actions([
                 Actions\EditAction::make(),
             ])

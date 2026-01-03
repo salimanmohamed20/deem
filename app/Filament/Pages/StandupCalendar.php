@@ -19,6 +19,8 @@ class StandupCalendar extends Page implements HasForms
 
     protected static string|BackedEnum|null $navigationIcon = 'heroicon-o-calendar';
 
+    protected static bool $shouldRegisterNavigation = false;
+
     protected string $view = 'filament.pages.standup-calendar';
 
     public ?int $selectedEmployeeId = null;
@@ -33,15 +35,26 @@ class StandupCalendar extends Page implements HasForms
 
     public function form(Schema $schema): Schema
     {
+        $user = auth()->user();
+        $isAdmin = $user && ($user->hasRole('super_admin') || $user->can('view_any_standup'));
+
+        // For non-admins, only show their own employee in the dropdown
+        $employeeOptions = $isAdmin 
+            ? fn () => Employee::join('users', 'employees.user_id', '=', 'users.id')
+                ->pluck('users.name', 'employees.id')
+            : fn () => Employee::join('users', 'employees.user_id', '=', 'users.id')
+                ->where('employees.id', $user->employee?->id)
+                ->pluck('users.name', 'employees.id');
+
         return $schema
             ->components([
                 Select::make('selectedEmployeeId')
                     ->label('Employee')
-                    ->options(fn () => Employee::join('users', 'employees.user_id', '=', 'users.id')
-                        ->pluck('users.name', 'employees.id'))
+                    ->options($employeeOptions)
                     ->searchable()
                     ->live()
-                    ->placeholder('Select an employee'),
+                    ->placeholder('Select an employee')
+                    ->disabled(!$isAdmin),
             ])
             ->columns(1);
     }

@@ -6,8 +6,9 @@ use Filament\Forms;
 use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Schemas\Schema;
 use Filament\Tables;
-use Filament\Actions;
 use Filament\Tables\Table;
+use Filament\Actions;
+use Illuminate\Database\Eloquent\Builder;
 
 class TasksRelationManager extends RelationManager
 {
@@ -46,6 +47,7 @@ class TasksRelationManager extends RelationManager
     {
         return $table
             ->recordTitleAttribute('title')
+            ->modifyQueryUsing(fn (Builder $query) => $query->forCurrentEmployee())
             ->columns([
                 Tables\Columns\TextColumn::make('title'),
                 Tables\Columns\TextColumn::make('status')
@@ -65,9 +67,7 @@ class TasksRelationManager extends RelationManager
                 Tables\Columns\TextColumn::make('deadline')
                     ->date(),
             ])
-            ->filters([
-                //
-            ])
+            ->filters([])
             ->headerActions([
                 Actions\CreateAction::make(),
             ])

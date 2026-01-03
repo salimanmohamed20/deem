@@ -3,41 +3,52 @@
 namespace App\Filament\Widgets;
 
 use App\Models\Task;
+use App\Traits\HasRoleBasedAccess;
 use Filament\Widgets\ChartWidget;
 
 class TaskStatusWidget extends ChartWidget
 {
+    use HasRoleBasedAccess;
+
     protected static ?int $sort = 5;
-    
     protected int | string | array $columnSpan = 1;
 
     public function getHeading(): ?string
     {
-        return 'Tasks by Status';
+        return self::isEmployee() ? 'My Tasks Distribution' : 'Tasks Distribution';
+    }
+
+    public function getDescription(): ?string
+    {
+        return 'Current status breakdown';
     }
 
     public function getMaxHeight(): ?string
     {
-        return '250px';
+        return '280px';
     }
 
     protected function getData(): array
     {
-        $todo = Task::where('status', 'to_do')->count();
-        $inProgress = Task::where('status', 'in_progress')->count();
-        $done = Task::where('status', 'done')->count();
+        $query = Task::query()->forCurrentEmployee();
+
+        $todo = (clone $query)->where('status', 'to_do')->count();
+        $inProgress = (clone $query)->where('status', 'in_progress')->count();
+        $done = (clone $query)->where('status', 'done')->count();
 
         return [
             'datasets' => [
                 [
                     'data' => [$todo, $inProgress, $done],
                     'backgroundColor' => [
-                        'rgba(251, 191, 36, 0.9)',
-                        'rgba(59, 130, 246, 0.9)',
-                        'rgba(34, 197, 94, 0.9)',
+                        'rgb(250, 204, 21)',
+                        'rgb(59, 130, 246)',
+                        'rgb(34, 197, 94)',
                     ],
+                    'borderColor' => 'transparent',
                     'borderWidth' => 0,
-                    'hoverOffset' => 10,
+                    'hoverOffset' => 8,
+                    'spacing' => 2,
                 ],
             ],
             'labels' => ['To Do', 'In Progress', 'Done'],
@@ -46,7 +57,7 @@ class TaskStatusWidget extends ChartWidget
 
     protected function getType(): string
     {
-        return 'pie';
+        return 'doughnut';
     }
 
     protected function getOptions(): array
@@ -56,8 +67,15 @@ class TaskStatusWidget extends ChartWidget
                 'legend' => [
                     'display' => true,
                     'position' => 'bottom',
+                    'labels' => [
+                        'padding' => 16,
+                        'usePointStyle' => true,
+                        'pointStyle' => 'circle',
+                    ],
                 ],
             ],
+            'cutout' => '65%',
+            'maintainAspectRatio' => true,
         ];
     }
 }

@@ -5,6 +5,7 @@ namespace App\Filament\Resources\StandupResource\Pages;
 use App\Filament\Resources\StandupResource;
 use Filament\Actions;
 use Filament\Resources\Pages\ListRecords;
+use Illuminate\Database\Eloquent\Builder;
 
 class ListStandups extends ListRecords
 {
@@ -15,5 +16,10 @@ class ListStandups extends ListRecords
         return [
             Actions\CreateAction::make(),
         ];
+    }
+
+    protected function getTableQuery(): ?Builder
+    {
+        return parent::getTableQuery()->forCurrentEmployee();
     }
 }

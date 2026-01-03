@@ -4,45 +4,90 @@ namespace App\Filament\Resources;
 
 use App\Filament\Resources\UserResource\Pages;
 use App\Models\User;
+use App\Traits\HasRoleBasedAccess;
 use Filament\Forms;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
+use Filament\Schemas\Components\Section;
+use Filament\Schemas\Components\Grid;
 use Filament\Tables;
-use Filament\Actions;
 use Filament\Tables\Table;
+use Filament\Actions;
 use Illuminate\Support\Facades\Hash;
 use BackedEnum;
-use UnitEnum;
 
 class UserResource extends Resource
 {
-    protected static ?string $model = User::class;
+    use HasRoleBasedAccess;
 
+    protected static ?string $model = User::class;
     protected static string|BackedEnum|null $navigationIcon = 'heroicon-o-users';
+
+    public static function getNavigationGroup(): ?string
+    {
+        return 'Administration';
+    }
+
+    public static function shouldRegisterNavigation(): bool
+    {
+        return self::isSuperAdmin();
+    }
+
+    public static function canView($record): bool
+    {
+        $user = auth()->user();
+        
+        // Super admin can view all users
+        if ($user && $user->hasRole('super_admin')) {
+            return true;
+        }
+        
+        return false;
+    }
 
     public static function form(Schema $schema): Schema
     {
         return $schema
             ->components([
-                Forms\Components\TextInput::make('name')
-                    ->required()
-                    ->maxLength(255),
-                Forms\Components\TextInput::make('email')
-                    ->email()
-                    ->required()
-                    ->unique(ignoreRecord: true)
-                    ->maxLength(255),
-                Forms\Components\TextInput::make('password')
-                    ->password()
-                    ->dehydrateStateUsing(fn($state) => Hash::make($state))
-                    ->dehydrated(fn($state) => filled($state))
-                    ->required(fn(string $context): bool => $context === 'create')
-                    ->maxLength(255),
-                Forms\Components\Toggle::make('is_active')
-                    ->default(true),
-                Forms\Components\CheckboxList::make('roles')
-                    ->relationship('roles', 'name')
-                    ->columns(2),
+                Section::make('User Information')
+                    ->description('Basic user account details')
+                    ->icon('heroicon-o-user')
+                    ->schema([
+                        Grid::make(2)
+                            ->schema([
+                                Forms\Components\TextInput::make('name')
+                                    ->required()
+                                    ->maxLength(255)
+                                    ->placeholder('Enter full name'),
+                                Forms\Components\TextInput::make('email')
+                                    ->email()
+                                    ->required()
+                                    ->unique(ignoreRecord: true)
+                                    ->maxLength(255)
+                                    ->placeholder('user@example.com'),
+                            ]),
+                        Forms\Components\TextInput::make('password')
+                            ->password()
+                            ->dehydrateStateUsing(fn($state) => Hash::make($state))
+                            ->dehydrated(fn($state) => filled($state))
+                            ->required(fn(string $context): bool => $context === 'create')
+                            ->maxLength(255)
+                            ->placeholder('Leave empty to keep current password')
+                            ->columnSpanFull(),
+                    ]),
+                Section::make('Access & Permissions')
+                    ->description('Control user access and roles')
+                    ->icon('heroicon-o-shield-check')
+                    ->schema([
+                        Forms\Components\Toggle::make('is_active')
+                            ->label('Active Account')
+                            ->helperText('Inactive users cannot log in')
+                            ->default(true),
+                        Forms\Components\CheckboxList::make('roles')
+                            ->relationship('roles', 'name')
+                            ->columns(3)
+                            ->gridDirection('row'),
+                    ]),
             ]);
     }
 
@@ -71,20 +116,20 @@ class UserResource extends Resource
                     ->relationship('roles', 'name'),
             ])
             ->actions([
-                Tables\Actions\EditAction::make(),
+                Actions\ViewAction::make()
+                    ->label('View'),
+                Actions\EditAction::make(),
             ])
             ->bulkActions([
-                Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
+                Actions\BulkActionGroup::make([
+                    Actions\DeleteBulkAction::make(),
                 ]),
             ]);
     }
 
     public static function getRelations(): array
     {
-        return [
-            //
-        ];
+        return [];
     }
 
     public static function getPages(): array
@@ -92,6 +137,7 @@ class UserResource extends Resource
         return [
             'index' => Pages\ListUsers::route('/'),
             'create' => Pages\CreateUser::route('/create'),
+            'view' => Pages\ViewUser::route('/{record}'),
             'edit' => Pages\EditUser::route('/{record}/edit'),
         ];
     }

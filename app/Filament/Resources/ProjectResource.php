@@ -6,50 +6,87 @@ use App\Filament\Resources\ProjectResource\Pages;
 use App\Filament\Resources\ProjectResource\RelationManagers;
 use App\Models\Employee;
 use App\Models\Project;
+use App\Traits\HasRoleBasedAccess;
 use Filament\Forms;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
+use Filament\Schemas\Components\Section;
+use Filament\Schemas\Components\Grid;
 use Filament\Tables;
-use Filament\Actions;
 use Filament\Tables\Table;
+use Filament\Actions;
 use BackedEnum;
-use UnitEnum;
 
 class ProjectResource extends Resource
 {
-    protected static ?string $model = Project::class;
+    use HasRoleBasedAccess;
 
+    protected static ?string $model = Project::class;
     protected static string|BackedEnum|null $navigationIcon = 'heroicon-o-folder';
 
     public static function form(Schema $schema): Schema
     {
         return $schema
             ->components([
-                Forms\Components\TextInput::make('name')
-                    ->required()
-                    ->maxLength(255),
-                Forms\Components\Textarea::make('description')
-                    ->maxLength(65535)
-                    ->columnSpanFull(),
-                Forms\Components\Select::make('project_manager_id')
-                    ->label('Project Manager')
-                    ->options(Employee::with('user')->get()->pluck('user.name', 'id'))
-                    ->searchable(),
-                Forms\Components\Select::make('status')
-                    ->options([
-                        'planned' => 'Planned',
-                        'active' => 'Active',
-                        'completed' => 'Completed',
-                        'archived' => 'Archived',
-                    ])
-                    ->default('planned')
-                    ->required(),
-                Forms\Components\DatePicker::make('start_date')
-                    ->required(),
-                Forms\Components\DatePicker::make('end_date'),
-                Forms\Components\CheckboxList::make('teams')
-                    ->relationship('teams', 'name')
-                    ->columns(2),
+                Section::make('Project Details')
+                    ->description('Basic project information')
+                    ->icon('heroicon-o-folder')
+                    ->schema([
+                        Forms\Components\TextInput::make('name')
+                            ->required()
+                            ->maxLength(255)
+                            ->placeholder('Enter project name')
+                            ->columnSpanFull(),
+                        Forms\Components\Textarea::make('description')
+                            ->maxLength(65535)
+                            ->rows(3)
+                            ->placeholder('Describe the project goals and scope')
+                            ->columnSpanFull(),
+                    ]),
+                Section::make('Project Settings')
+                    ->description('Manager, status, and timeline')
+                    ->icon('heroicon-o-cog-6-tooth')
+                    ->schema([
+                        Grid::make(2)
+                            ->schema([
+                                Forms\Components\Select::make('project_manager_id')
+                                    ->label('Project Manager')
+                                    ->options(Employee::with('user')->get()->pluck('user.name', 'id'))
+                                    ->searchable()
+                                    ->placeholder('Select manager'),
+                                Forms\Components\Select::make('status')
+                                    ->options([
+                                        'planned' => 'Planned',
+                                        'active' => 'Active',
+                                        'completed' => 'Completed',
+                                        'archived' => 'Archived',
+                                    ])
+                                    ->default('planned')
+                                    ->required(),
+                            ]),
+                        Grid::make(2)
+                            ->schema([
+                                Forms\Components\DatePicker::make('start_date')
+                                    ->required()
+                                    ->native(false)
+                                    ->displayFormat('M d, Y'),
+                                Forms\Components\DatePicker::make('end_date')
+                                    ->native(false)
+                                    ->displayFormat('M d, Y')
+                                    ->afterOrEqual('start_date'),
+                            ]),
+                    ]),
+                Section::make('Team Assignment')
+                    ->description('Assign teams to this project')
+                    ->icon('heroicon-o-user-group')
+                    ->collapsible()
+                    ->schema([
+                        Forms\Components\CheckboxList::make('teams')
+                            ->relationship('teams', 'name')
+                            ->columns(3)
+                            ->gridDirection('row')
+                            ->searchable(),
+                    ]),
             ]);
     }
 
@@ -87,15 +124,16 @@ class ProjectResource extends Resource
                         'completed' => 'Completed',
                         'archived' => 'Archived',
                     ]),
-                Tables\Filters\SelectFilter::make('teams')
-                    ->relationship('teams', 'name'),
             ])
             ->actions([
-                Actions\EditAction::make(),
+                Actions\ViewAction::make(),
+                Actions\EditAction::make()
+                    ->visible(fn () => self::isSuperAdmin()),
             ])
             ->bulkActions([
                 Actions\BulkActionGroup::make([
-                    Actions\DeleteBulkAction::make(),
+                    Actions\DeleteBulkAction::make()
+                        ->visible(fn () => self::isSuperAdmin()),
                 ]),
             ]);
     }
@@ -113,7 +151,13 @@ class ProjectResource extends Resource
         return [
             'index' => Pages\ListProjects::route('/'),
             'create' => Pages\CreateProject::route('/create'),
+            'view' => Pages\ViewProject::route('/{record}'),
             'edit' => Pages\EditProject::route('/{record}/edit'),
         ];
+    }
+
+    public static function canCreate(): bool
+    {
+        return self::isSuperAdmin();
     }
 }

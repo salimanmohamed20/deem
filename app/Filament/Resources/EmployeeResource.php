@@ -6,46 +6,86 @@ use App\Filament\Resources\EmployeeResource\Pages;
 use App\Models\Employee;
 use App\Models\JobTitle;
 use App\Models\User;
+use App\Traits\HasRoleBasedAccess;
 use Filament\Forms;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
+use Filament\Schemas\Components\Section;
+use Filament\Schemas\Components\Grid;
 use Filament\Tables;
-use Filament\Actions;
 use Filament\Tables\Table;
+use Filament\Actions;
 use BackedEnum;
-use UnitEnum;
 
 class EmployeeResource extends Resource
 {
-    protected static ?string $model = Employee::class;
+    use HasRoleBasedAccess;
 
+    protected static ?string $model = Employee::class;
     protected static string|BackedEnum|null $navigationIcon = 'heroicon-o-user-group';
+
+    public static function getNavigationGroup(): ?string
+    {
+        return 'Administration';
+    }
+
+    public static function shouldRegisterNavigation(): bool
+    {
+        return self::isSuperAdmin();
+    }
 
     public static function form(Schema $schema): Schema
     {
         return $schema
             ->components([
-                Forms\Components\Select::make('user_id')
-                    ->label('User')
-                    ->options(User::whereDoesntHave('employee')->pluck('name', 'id'))
-                    ->searchable()
-                    ->required()
-                    ->hiddenOn('edit'),
-                Forms\Components\Select::make('job_title_id')
-                    ->label('Job Title')
-                    ->options(JobTitle::pluck('name', 'id'))
-                    ->searchable()
-                    ->required(),
-                Forms\Components\TextInput::make('phone')
-                    ->tel()
-                    ->maxLength(255),
-                Forms\Components\DatePicker::make('hire_date')
-                    ->required(),
-                Forms\Components\Toggle::make('is_active')
-                    ->default(true),
-                Forms\Components\CheckboxList::make('teams')
-                    ->relationship('teams', 'name')
-                    ->columns(2),
+                Section::make('Employee Details')
+                    ->description('Link user account and assign job role')
+                    ->icon('heroicon-o-identification')
+                    ->schema([
+                        Grid::make(2)
+                            ->schema([
+                                Forms\Components\Select::make('user_id')
+                                    ->label('User Account')
+                                    ->options(User::whereDoesntHave('employee')->pluck('name', 'id'))
+                                    ->searchable()
+                                    ->required()
+                                    ->hiddenOn('edit')
+                                    ->placeholder('Select a user'),
+                                Forms\Components\Select::make('job_title_id')
+                                    ->label('Job Title')
+                                    ->options(JobTitle::pluck('name', 'id'))
+                                    ->searchable()
+                                    ->required()
+                                    ->placeholder('Select job title'),
+                            ]),
+                        Grid::make(2)
+                            ->schema([
+                                Forms\Components\TextInput::make('phone')
+                                    ->tel()
+                                    ->maxLength(255)
+                                    ->placeholder('+1 (555) 000-0000'),
+                                Forms\Components\DatePicker::make('hire_date')
+                                    ->required()
+                                    ->native(false)
+                                    ->displayFormat('M d, Y'),
+                            ]),
+                        Forms\Components\Toggle::make('is_active')
+                            ->label('Active Employee')
+                            ->helperText('Inactive employees will not appear in assignments')
+                            ->default(true),
+                    ]),
+                Section::make('Team Assignments')
+                    ->description('Assign employee to teams')
+                    ->icon('heroicon-o-user-group')
+                    ->collapsible()
+                    ->schema([
+                        Forms\Components\CheckboxList::make('teams')
+                            ->relationship('teams', 'name')
+                            ->columns(3)
+                            ->gridDirection('row')
+                            ->noSearchResultsMessage('No teams found')
+                            ->searchable(),
+                    ]),
             ]);
     }
 
@@ -89,9 +129,7 @@ class EmployeeResource extends Resource
 
     public static function getRelations(): array
     {
-        return [
-            //
-        ];
+        return [];
     }
 
     public static function getPages(): array

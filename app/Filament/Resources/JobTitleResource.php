@@ -4,31 +4,50 @@ namespace App\Filament\Resources;
 
 use App\Filament\Resources\JobTitleResource\Pages;
 use App\Models\JobTitle;
+use App\Traits\HasRoleBasedAccess;
 use Filament\Forms;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
+use Filament\Schemas\Components\Section;
 use Filament\Tables;
-use Filament\Actions;
 use Filament\Tables\Table;
+use Filament\Actions;
 use BackedEnum;
-use UnitEnum;
 
 class JobTitleResource extends Resource
 {
-    protected static ?string $model = JobTitle::class;
+    use HasRoleBasedAccess;
 
+    protected static ?string $model = JobTitle::class;
     protected static string|BackedEnum|null $navigationIcon = 'heroicon-o-briefcase';
+
+    public static function getNavigationGroup(): ?string
+    {
+        return 'Administration';
+    }
+
+    public static function shouldRegisterNavigation(): bool
+    {
+        return self::isSuperAdmin();
+    }
 
     public static function form(Schema $schema): Schema
     {
         return $schema
             ->components([
-                Forms\Components\TextInput::make('name')
-                    ->required()
-                    ->maxLength(255),
-                Forms\Components\Textarea::make('description')
-                    ->maxLength(65535)
-                    ->columnSpanFull(),
+                Section::make('Job Title Information')
+                    ->icon('heroicon-o-briefcase')
+                    ->schema([
+                        Forms\Components\TextInput::make('name')
+                            ->required()
+                            ->maxLength(255)
+                            ->placeholder('e.g. Senior Developer, Project Manager'),
+                        Forms\Components\Textarea::make('description')
+                            ->maxLength(65535)
+                            ->rows(3)
+                            ->placeholder('Describe the responsibilities and requirements for this role')
+                            ->columnSpanFull(),
+                    ]),
             ]);
     }
 
@@ -46,9 +65,7 @@ class JobTitleResource extends Resource
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
-            ->filters([
-                //
-            ])
+            ->filters([])
             ->actions([
                 Actions\EditAction::make(),
                 Actions\DeleteAction::make(),
@@ -62,9 +79,7 @@ class JobTitleResource extends Resource
 
     public static function getRelations(): array
     {
-        return [
-            //
-        ];
+        return [];
     }
 
     public static function getPages(): array

@@ -30,24 +30,32 @@ class AdminPanelProvider extends PanelProvider
             ->spa()
             ->id('admin')
             ->path('admin')
+            
             ->login()
+            ->profile()
+            ->topNavigation()
             ->brandName('Deem')
-            ->sidebarCollapsibleOnDesktop()
-            ->colors([
-                'primary' => [
-                    50 => '#eef2ff',
-                    100 => '#e0e7ff',
-                    200 => '#c7d2fe',
-                    300 => '#a5b4fc',
-                    400 => '#818cf8',
-                    500 => '#1e3a5f',
-                    600 => '#172e4d',
-                    700 => '#12263f',
-                    800 => '#0d1b2a',
-                    900 => '#0a1628',
-                    950 => '#060f1a',
-                ],
-            ])
+            ->brandLogo(asset('images/logo-deem.png'))
+            ->brandLogoHeight('2rem')
+            ->favicon(asset('images/logo-deem.png'))
+            ->globalSearch(true)
+            ->globalSearchKeyBindings(['command+k', 'ctrl+k'])
+         ->colors([
+    'primary' => [
+        50  => '#eef9ff',
+        100 => '#d9f0ff',
+        200 => '#b6e3ff',
+        300 => '#7fcfff',
+        400 => '#38b6ff', // قريب جدًا من لون اللوجو
+        500 => '#1ea0ff', // MAIN BRAND COLOR
+        600 => '#0b84e6',
+        700 => '#0867b4',
+        800 => '#0a4f87',
+        900 => '#0b3f6b',
+        950 => '#062845',
+    ],
+])
+
             ->discoverResources(in: app_path('Filament/Resources'), for: 'App\Filament\Resources')
             ->discoverPages(in: app_path('Filament/Pages'), for: 'App\Filament\Pages')
             ->pages([
@@ -71,6 +79,8 @@ class AdminPanelProvider extends PanelProvider
             ->plugins([
                 FilamentShieldPlugin::make(),
             ])
+            ->databaseNotifications()
+            ->databaseNotificationsPolling('30s')
             ->authMiddleware([
                 Authenticate::class,
             ]);

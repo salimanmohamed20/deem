@@ -2,38 +2,88 @@
 
 namespace App\Filament\Widgets;
 
-use App\Models\Project;
 use App\Models\Task;
-use Filament\Widgets\StatsOverviewWidget as BaseWidget;
-use Filament\Widgets\StatsOverviewWidget\Stat;
+use App\Traits\HasRoleBasedAccess;
+use Filament\Widgets\ChartWidget;
 use Illuminate\Support\Facades\DB;
 
-class TeamPerformanceWidget extends BaseWidget
+class TeamPerformanceWidget extends ChartWidget
 {
-    protected static ?int $sort = 1;
+    use HasRoleBasedAccess;
 
-    protected function getStats(): array
+    protected static ?int $sort = 6;
+    protected int | string | array $columnSpan = 1;
+
+    public function getHeading(): ?string
     {
-        // Single optimized query
-        $stats = DB::table('tasks')
-            ->selectRaw('COUNT(*) as total, SUM(CASE WHEN status = "done" THEN 1 ELSE 0 END) as completed')
-            ->first();
+        return 'Task Priority Breakdown';
+    }
 
-        $projectsCount = DB::table('projects')->count();
-        $tasksCount = $stats->total ?? 0;
-        $completedTasks = $stats->completed ?? 0;
-        $completionPercentage = $tasksCount > 0 ? round(($completedTasks / $tasksCount) * 100, 1) : 0;
+    public function getDescription(): ?string
+    {
+        return 'Distribution by priority level';
+    }
+
+    public function getMaxHeight(): ?string
+    {
+        return '280px';
+    }
+
+    public static function canView(): bool
+    {
+        return self::isSuperAdmin() || self::isProjectManager();
+    }
+
+    protected function getData(): array
+    {
+        $query = Task::query()->forCurrentEmployee();
+
+        $high = (clone $query)->where('priority', 'high')->count();
+        $medium = (clone $query)->where('priority', 'medium')->count();
+        $low = (clone $query)->where('priority', 'low')->count();
 
         return [
-            Stat::make('Total Projects', $projectsCount)
-                ->description('Active projects')
-                ->color('primary'),
-            Stat::make('Total Tasks', $tasksCount)
-                ->description('All tasks')
-                ->color('info'),
-            Stat::make('Completion Rate', $completionPercentage . '%')
-                ->description($completedTasks . ' completed')
-                ->color($completionPercentage >= 70 ? 'success' : 'warning'),
+            'datasets' => [
+                [
+                    'data' => [$high, $medium, $low],
+                    'backgroundColor' => [
+                        'rgb(239, 68, 68)',
+                        'rgb(245, 158, 11)',
+                        'rgb(34, 197, 94)',
+                    ],
+                    'borderWidth' => 0,
+                    'hoverOffset' => 8,
+                ],
+            ],
+            'labels' => ['High', 'Medium', 'Low'],
+        ];
+    }
+
+    protected function getType(): string
+    {
+        return 'polarArea';
+    }
+
+    protected function getOptions(): array
+    {
+        return [
+            'plugins' => [
+                'legend' => [
+                    'display' => true,
+                    'position' => 'bottom',
+                    'labels' => [
+                        'padding' => 16,
+                        'usePointStyle' => true,
+                        'pointStyle' => 'circle',
+                    ],
+                ],
+            ],
+            'scales' => [
+                'r' => [
+                    'display' => false,
+                ],
+            ],
+            'maintainAspectRatio' => true,
         ];
     }
 }
