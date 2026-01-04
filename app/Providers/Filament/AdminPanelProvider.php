@@ -82,6 +82,7 @@ class AdminPanelProvider extends PanelProvider
             ->databaseNotificationsPolling('30s')
             ->authMiddleware([
                 Authenticate::class,
+                \App\Http\Middleware\CheckUserActive::class,
             ]);
     }
 }
