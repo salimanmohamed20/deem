@@ -7,6 +7,7 @@ use App\Models\Announcement;
 use Filament\Forms;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
+use Filament\Schemas\Components\Section;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Filament\Actions;
@@ -47,7 +48,7 @@ class AnnouncementResource extends Resource
     {
         return $schema
             ->components([
-                Forms\Components\Section::make('Announcement Details')
+                Section::make('Announcement Details')
                     ->schema([
                         Forms\Components\TextInput::make('title')
                             ->required()
@@ -72,7 +73,7 @@ class AnnouncementResource extends Resource
                             ->label('Pinned')
                             ->helperText('Pinned announcements appear at the top'),
                     ])->columns(3),
-                Forms\Components\Section::make('Schedule')
+                Section::make('Schedule')
                     ->schema([
                         Forms\Components\DateTimePicker::make('published_at')
                             ->label('Publish Date')
