@@ -31,7 +31,7 @@ class AdminPanelProvider extends PanelProvider
             ->id('admin')
             ->path('admin')
             
-            ->login()
+            ->login(\App\Filament\Pages\Auth\Login::class)
             ->profile()
            ->spa()
             ->brandName('Deem')
