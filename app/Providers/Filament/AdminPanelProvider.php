@@ -81,6 +81,10 @@ class AdminPanelProvider extends PanelProvider
             ])
             ->databaseNotifications()
             ->databaseNotificationsPolling('30s')
+            ->renderHook(
+                'panels::sidebar.footer',
+                fn () => view('filament.sidebar-announcements')
+            )
             ->authMiddleware([
                 Authenticate::class,
                 \App\Http\Middleware\CheckUserActive::class,
