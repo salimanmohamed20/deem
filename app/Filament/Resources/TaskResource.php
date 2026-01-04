@@ -51,7 +51,18 @@ class TaskResource extends Resource
     {
         return parent::getGlobalSearchEloquentQuery()->with(['project']);
     }
-    
+    use Filament\Navigation\NavigationItem;
+
+public static function getNavigationBadge(): ?string
+{
+    return (string) static::getModel()::count();
+}
+
+public static function getNavigationBadgeColor(): ?string
+{
+    return 'primary'; // success | warning | danger
+}
+
     public static function getGlobalSearchResultUrl($record): string
     {
         return TaskResource::getUrl('edit', ['record' => $record]);
