@@ -53,7 +53,7 @@ class TaskResource extends Resource
     }
        public static function getNavigationBadge(): ?string
     {
-        return (string) Task::count();
+        return (string) Task::forCurrentEmployee()->count();
     }
 
     public static function getNavigationBadgeColor(): ?string
