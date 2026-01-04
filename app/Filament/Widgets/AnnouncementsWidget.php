@@ -4,6 +4,7 @@ namespace App\Filament\Widgets;
 
 use App\Models\Announcement;
 use Filament\Widgets\Widget;
+use Illuminate\Contracts\View\View;
 
 class AnnouncementsWidget extends Widget
 {
@@ -11,9 +12,11 @@ class AnnouncementsWidget extends Widget
 
     protected int | string | array $columnSpan = 'full';
 
-    protected function getViewName(): string
+    public function render(): View
     {
-        return 'filament.widgets.announcements-widget';
+        return view('filament.widgets.announcements-widget', [
+            'announcements' => $this->getAnnouncements(),
+        ]);
     }
 
     public function getAnnouncements()

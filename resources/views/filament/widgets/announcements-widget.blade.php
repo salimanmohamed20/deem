@@ -1,8 +1,4 @@
 <x-filament-widgets::widget>
-    @php
-        $announcements = $this->getAnnouncements();
-    @endphp
-
     @if($announcements->count() > 0)
         <div class="space-y-3">
             @foreach($announcements as $announcement)
