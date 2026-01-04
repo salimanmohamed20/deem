@@ -49,7 +49,7 @@ class TaskResource extends Resource
     
     public static function getGlobalSearchEloquentQuery(): \Illuminate\Database\Eloquent\Builder
     {
-        return parent::getGlobalSearchEloquentQuery()->with(['project']);
+        return parent::getGlobalSearchEloquentQuery()->forCurrentEmployee()->with(['project']);
     }
        public static function getNavigationBadge(): ?string
     {
