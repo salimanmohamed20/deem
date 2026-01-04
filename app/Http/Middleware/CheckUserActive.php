@@ -13,7 +13,7 @@ class CheckUserActive
         $user = auth()->user();
         
         // Only check if user is logged in and has is_active set to false explicitly
-        if ($user && $user->is_active === false) {
+        if ($user && $user->is_active == 0) {
             auth()->logout();
             $request->session()->invalidate();
             $request->session()->regenerateToken();
