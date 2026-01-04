@@ -32,7 +32,7 @@ class AdminPanelProvider extends PanelProvider
             
             ->login()
             ->profile()
-           
+           ->spa()
             ->brandName('Deem')
             ->brandLogo(asset('images/logo-deem.png'))
             ->brandLogoHeight('2rem')
