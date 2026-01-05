@@ -6,7 +6,7 @@ use App\Filament\Resources\ProjectResource;
 use Filament\Actions;
 use Filament\Resources\Pages\ListRecords;
 use Illuminate\Database\Eloquent\Builder;
-use Filament\Resources\Components\Tab;
+use Filament\Resources\Pages\ListRecords\Tab;
 use App\Models\Project;
 
 
