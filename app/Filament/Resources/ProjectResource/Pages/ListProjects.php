@@ -8,6 +8,8 @@ use Filament\Resources\Pages\ListRecords;
 use Illuminate\Database\Eloquent\Builder;
 use Filament\Resources\Components\Tab;
 use App\Models\Project;
+use Filament\Schemas\Components\Tabs\Tab;
+
 
 class ListProjects extends ListRecords
 {
