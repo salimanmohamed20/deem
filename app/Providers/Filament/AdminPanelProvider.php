@@ -32,7 +32,7 @@ class AdminPanelProvider extends PanelProvider
             ->path('admin')
             
             ->login(\App\Filament\Pages\Auth\Login::class)
-            ->profile()
+            ->profile(\App\Filament\Pages\Auth\EditProfile::class)
            ->spa()
             ->brandName('Deem')
             ->brandLogo(asset('images/logo-deem.png'))

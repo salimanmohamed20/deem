@@ -273,6 +273,16 @@ class TaskBoard extends Page implements HasForms, HasActions
             return;
         }
 
+        // Only Super Admin and Project Manager can move tasks to "done"
+        if ($newStatus === 'done' && !self::isSuperAdmin() && !self::isProjectManager()) {
+            Notification::make()
+                ->title('Permission Denied')
+                ->body('Only managers can mark tasks as done.')
+                ->danger()
+                ->send();
+            return;
+        }
+
         $service = new TaskBoardService();
         
         if ($newIndex !== null) {
@@ -289,6 +299,16 @@ class TaskBoard extends Page implements HasForms, HasActions
     {
         $task = Task::find($taskId);
         if (!$task || !$task->isAccessibleBy(auth()->user())) {
+            return;
+        }
+
+        // Only Super Admin and Project Manager can reorder tasks in "done"
+        if ($status === 'done' && !self::isSuperAdmin() && !self::isProjectManager()) {
+            Notification::make()
+                ->title('Permission Denied')
+                ->body('Only managers can modify done tasks.')
+                ->danger()
+                ->send();
             return;
         }
 

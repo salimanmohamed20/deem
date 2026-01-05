@@ -3,16 +3,30 @@
 namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
+use Filament\Models\Contracts\FilamentUser;
+use Filament\Models\Contracts\HasAvatar;
+use Filament\Panel;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Support\Facades\Storage;
 use Spatie\Permission\Traits\HasRoles;
 use App\Models\Employee;
 
-class User extends Authenticatable
+class User extends Authenticatable implements FilamentUser, HasAvatar
 {
     /** @use HasFactory<\Database\Factories\UserFactory> */
     use HasFactory, Notifiable, HasRoles;
+
+    public function canAccessPanel(Panel $panel): bool
+    {
+        return true;
+    }
+
+    public function getFilamentAvatarUrl(): ?string
+    {
+        return $this->avatar ? Storage::disk('public')->url($this->avatar) : null;
+    }
 
     /**
      * The attributes that are mass assignable.
@@ -24,6 +38,7 @@ class User extends Authenticatable
         'email',
         'password',
         'is_active',
+        'avatar',
     ];
 
     public function employee()

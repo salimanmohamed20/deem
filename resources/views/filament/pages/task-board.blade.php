@@ -173,6 +173,8 @@
 
     <script>
         function taskBoard() {
+            const canMoveToDone = @json(\App\Traits\HasRoleBasedAccess::isSuperAdmin() || \App\Traits\HasRoleBasedAccess::isProjectManager());
+            
             return {
                 draggedTask: null, draggedFromStatus: null, dragOverColumn: null,
                 dragOverCard: null, dropIndex: null, isDragging: false,
@@ -185,7 +187,14 @@
                     this.draggedTask = null; this.draggedFromStatus = null;
                     this.dragOverColumn = null; this.dragOverCard = null; this.dropIndex = null;
                 },
-                handleColumnDragOver(event, status) { this.dragOverColumn = status; },
+                handleColumnDragOver(event, status) { 
+                    // Prevent drop on "done" column for non-managers
+                    if (status === 'done' && !canMoveToDone) {
+                        event.dataTransfer.dropEffect = 'none';
+                        return;
+                    }
+                    this.dragOverColumn = status; 
+                },
                 handleColumnDragLeave(event) {
                     if (!event.relatedTarget || !event.currentTarget.contains(event.relatedTarget)) this.dragOverColumn = null;
                 },
@@ -200,6 +209,13 @@
                 },
                 handleDrop(event, status) {
                     if (!this.draggedTask) return;
+                    
+                    // Prevent drop on "done" column for non-managers
+                    if (status === 'done' && !canMoveToDone) {
+                        this.endDrag();
+                        return;
+                    }
+                    
                     let newIndex = this.dropIndex ?? event.currentTarget.querySelector('.task-cards').querySelectorAll('.task-card').length;
                     this.$wire.updateTaskStatus(this.draggedTask, status, newIndex);
                     this.endDrag();
