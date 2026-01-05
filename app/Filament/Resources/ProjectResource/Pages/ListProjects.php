@@ -34,33 +34,33 @@ class ListProjects extends ListRecords
             'planned' => Tab::make('Planned')
                 ->icon('heroicon-m-calendar')
                 ->modifyQueryUsing(fn (Builder $query) =>
-                    $query->where('status', 'planned')
+                    $query->where('status', 'planned')->forCurrentEmployee()
                 )
-                ->badge(Project::where('status', 'planned')->count())
+                ->badge(Project::where('status', 'planned')->forCurrentEmployee()->count())
                 ->badgeColor('warning'),
 
             'active' => Tab::make('Active')
                 ->icon('heroicon-m-play-circle')
                 ->modifyQueryUsing(fn (Builder $query) =>
-                    $query->where('status', 'active')
+                    $query->where('status', 'active')->forCurrentEmployee()
                 )
-                ->badge(Project::where('status', 'active')->count())
+                ->badge(Project::where('status', 'active')->forCurrentEmployee()->count())
                 ->badgeColor('success'),
 
             'completed' => Tab::make('Completed')
                 ->icon('heroicon-m-check-circle')
                 ->modifyQueryUsing(fn (Builder $query) =>
-                    $query->where('status', 'completed')
+                    $query->where('status', 'completed')->forCurrentEmployee()
                 )
-                ->badge(Project::where('status', 'completed')->count())
+                ->badge(Project::where('status', 'completed')->forCurrentEmployee()->count())
                 ->badgeColor('info'),
 
             'archived' => Tab::make('Archived')
                 ->icon('heroicon-m-archive-box')
                 ->modifyQueryUsing(fn (Builder $query) =>
-                    $query->where('status', 'archived')
+                    $query->where('status', 'archived')->forCurrentEmployee()
                 )
-                ->badge(Project::where('status', 'archived')->count())
+                ->badge(Project::where('status', 'archived')->forCurrentEmployee()->count())
                 ->badgeColor('gray'),
         ];
     }
