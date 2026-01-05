@@ -18,12 +18,9 @@ class EditProfile extends BaseEditProfile
                 Forms\Components\FileUpload::make('avatar')
                     ->label('Avatar')
                     ->image()
-                    ->avatar()
-                    ->imageEditor()
-                    ->circleCropper()
                     ->disk('public')
                     ->directory('avatars')
-                    ->visibility('public')
+                    ->imageEditor()
                     ->maxSize(2048)
                     ->helperText('Upload a profile picture (max 2MB)'),
                 
