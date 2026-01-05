@@ -74,11 +74,6 @@ class StandupResource extends Resource
                                             ->searchable()
                                             ->placeholder('Select task'),
                                     ]),
-                                Forms\Components\Textarea::make('what_i_did')
-                                    ->label('What I Did Yesterday')
-                                    ->required()
-                                    ->rows(2)
-                                    ->placeholder('Describe what you accomplished'),
                                 Forms\Components\Textarea::make('what_i_will_do')
                                     ->label('What I Will Do Today')
                                     ->required()
