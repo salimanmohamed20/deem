@@ -11,19 +11,10 @@ class EditProfile extends BaseEditProfile
     public function form(Schema $schema): Schema
     {
         $user = auth()->user();
-        $jobTitle = $user->employee?->jobTitle?->name;
+        $jobTitle = $user->employee?->jobTitle?->name ?? 'Not assigned';
 
         return $schema
             ->components([
-                Forms\Components\FileUpload::make('avatar')
-                    ->label('Avatar')
-                    ->image()
-                    ->disk('public')
-                    ->directory('avatars')
-                    ->imageEditor()
-                    ->maxSize(2048)
-                    ->helperText('Upload a profile picture (max 2MB)'),
-                
                 Forms\Components\TextInput::make('name')
                     ->label('Name')
                     ->required()
@@ -35,12 +26,14 @@ class EditProfile extends BaseEditProfile
                     ->required()
                     ->maxLength(255)
                     ->unique(ignoreRecord: true),
-                
-                Forms\Components\Placeholder::make('job_title_display')
-                    ->label('Job Title')
-                    ->content($jobTitle ?? 'Not assigned')
-                    ->visible((bool) $jobTitle),
-                
+               Forms\Components\TextInput::make('job_title')
+    ->label('Job Title')
+    ->formatStateUsing(fn () => $jobTitle ?? 'Not assigned')
+    ->disabled()
+    ->dehydrated(false),
+
+   
+
                 $this->getPasswordFormComponent()
                     ->columnSpanFull(),
                     
