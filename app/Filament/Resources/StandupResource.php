@@ -55,12 +55,13 @@ class StandupResource extends Resource
                                     ->searchable()
                                     ->placeholder('Select task'),
                             ]),
-                        Forms\Components\TextInput::make('time_spent')
-                            ->label('Time Spent (minutes)')
+                        Forms\Components\TextInput::make('hours_spent')
+                            ->label('Hours Spent')
                             ->numeric()
                             ->minValue(0)
-                            ->suffix('min')
-                            ->placeholder('e.g. 120'),
+                            ->step(0.5)
+                            ->suffix('hrs')
+                            ->placeholder('e.g. 2.5'),
                         Forms\Components\Textarea::make('what_i_will_do')
                             ->label('What I Will Do Today')
                             ->required()
