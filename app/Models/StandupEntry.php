@@ -13,6 +13,7 @@ class StandupEntry extends Model
         'what_i_did',
         'what_i_will_do',
         'blockers',
+        'time_spent',
     ];
 
     public function standup()

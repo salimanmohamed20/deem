@@ -109,11 +109,19 @@ class TaskResource extends Resource
                             ->columnSpan(1)
                             ->schema([
                                 Forms\Components\Select::make('status')
-                                    ->options([
-                                        'to_do' => 'To Do',
-                                        'in_progress' => 'In Progress',
-                                        'done' => 'Done',
-                                    ])
+                                    ->options(function () use ($isEmployee) {
+                                        $options = [
+                                            'to_do' => 'To Do',
+                                            'in_progress' => 'In Progress',
+                                        ];
+                                        
+                                        // Only Super Admin and Project Manager can set status to "Done"
+                                        if (!$isEmployee) {
+                                            $options['done'] = 'Done';
+                                        }
+                                        
+                                        return $options;
+                                    })
                                     ->default('to_do')
                                     ->required(),
                                 Forms\Components\Select::make('priority')

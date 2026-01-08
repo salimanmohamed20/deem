@@ -27,71 +27,57 @@ class StandupResource extends Resource
     {
         return $schema
             ->components([
-                Section::make('Standup Information')
-                    ->description('Daily standup details')
-                    ->icon('heroicon-o-clipboard-document-check')
+                Forms\Components\Hidden::make('employee_id')
+                    ->default(fn() => auth()->user()->employee?->id),
+                Forms\Components\Hidden::make('date')
+                    ->default(now()),
+                Forms\Components\Repeater::make('entries')
+                    ->relationship()
                     ->schema([
                         Grid::make(2)
                             ->schema([
-                                Forms\Components\Select::make('employee_id')
-                                    ->label('Employee')
-                                    ->options(Employee::with('user')->get()->pluck('user.name', 'id'))
+                                Forms\Components\Select::make('project_id')
+                                    ->label('Project')
+                                    ->options(Project::pluck('name', 'id'))
                                     ->searchable()
-                                    ->default(fn() => auth()->user()->employee?->id)
-                                    ->required(),
-                                Forms\Components\DatePicker::make('date')
-                                    ->default(now())
                                     ->required()
-                                    ->native(false)
-                                    ->displayFormat('M d, Y'),
+                                    ->reactive()
+                                    ->placeholder('Select project'),
+                                Forms\Components\Select::make('task_id')
+                                    ->label('Task (Optional)')
+                                    ->options(function (callable $get) {
+                                        $projectId = $get('project_id');
+                                        if (!$projectId) {
+                                            return [];
+                                        }
+                                        return Task::where('project_id', $projectId)->pluck('title', 'id');
+                                    })
+                                    ->searchable()
+                                    ->placeholder('Select task'),
                             ]),
-                    ]),
-                Section::make('Standup Entries')
-                    ->description('Add your updates for each project/task')
-                    ->icon('heroicon-o-list-bullet')
-                    ->schema([
-                        Forms\Components\Repeater::make('entries')
-                            ->relationship()
-                            ->schema([
-                                Grid::make(2)
-                                    ->schema([
-                                        Forms\Components\Select::make('project_id')
-                                            ->label('Project')
-                                            ->options(Project::pluck('name', 'id'))
-                                            ->searchable()
-                                            ->required()
-                                            ->reactive()
-                                            ->placeholder('Select project'),
-                                        Forms\Components\Select::make('task_id')
-                                            ->label('Task (Optional)')
-                                            ->options(function (callable $get) {
-                                                $projectId = $get('project_id');
-                                                if (!$projectId) {
-                                                    return [];
-                                                }
-                                                return Task::where('project_id', $projectId)->pluck('title', 'id');
-                                            })
-                                            ->searchable()
-                                            ->placeholder('Select task'),
-                                    ]),
-                                Forms\Components\Textarea::make('what_i_will_do')
-                                    ->label('What I Will Do Today')
-                                    ->required()
-                                    ->rows(2)
-                                    ->placeholder('Describe your plans for today'),
-                                Forms\Components\Textarea::make('blockers')
-                                    ->label('Blockers / Impediments')
-                                    ->rows(2)
-                                    ->placeholder('Any issues blocking your progress?'),
-                            ])
-                            ->columns(1)
-                            ->columnSpanFull()
-                            ->defaultItems(1)
-                            ->addActionLabel('Add Another Entry')
-                            ->reorderable()
-                            ->collapsible()
-                            ->itemLabel(fn (array $state): ?string => $state['project_id'] ? Project::find($state['project_id'])?->name : 'New Entry'),
-                    ]),
+                        Forms\Components\TextInput::make('time_spent')
+                            ->label('Time Spent (minutes)')
+                            ->numeric()
+                            ->minValue(0)
+                            ->suffix('min')
+                            ->placeholder('e.g. 120'),
+                        Forms\Components\Textarea::make('what_i_will_do')
+                            ->label('What I Will Do Today')
+                            ->required()
+                            ->rows(3)
+                            ->placeholder('Describe your plans for today'),
+                        Forms\Components\Textarea::make('blockers')
+                            ->label('Blockers / Impediments')
+                            ->rows(2)
+                            ->placeholder('Any issues blocking your progress?'),
+                    ])
+                    ->columns(1)
+                    ->columnSpanFull()
+                    ->defaultItems(1)
+                    ->addActionLabel('Add Another Entry')
+                    ->reorderable()
+                    ->collapsible()
+                    ->itemLabel(fn (array $state): ?string => $state['project_id'] ? Project::find($state['project_id'])?->name : 'New Entry'),
             ]);
     }
 
