@@ -35,7 +35,7 @@ class AttachmentsRelationManager extends RelationManager
                         'application/zip',
                         'text/plain',
                     ])
-                    ->maxSize(10240)
+             
                     ->required()
                     ->storeFileNamesIn('file_name')
                     ->columnSpanFull(),

@@ -30,6 +30,7 @@ class Login extends BaseLogin
             ]);
         }
         
+        // Call parent authenticate which handles remember me functionality
         return parent::authenticate();
     }
 }

@@ -33,6 +33,8 @@ class AdminPanelProvider extends PanelProvider
             
             ->login(\App\Filament\Pages\Auth\Login::class)
             ->profile(\App\Filament\Pages\Auth\EditProfile::class)
+            ->passwordReset()
+            ->emailVerification()
            ->spa()
             ->brandName('Deem')
             ->brandLogo(asset('images/logo-deem.png'))
@@ -63,7 +65,7 @@ class AdminPanelProvider extends PanelProvider
             ])
             ->discoverWidgets(in: app_path('Filament/Widgets'), for: 'App\Filament\Widgets')
             ->widgets([
-                // Widgets disabled for performance
+                \App\Filament\Widgets\StandupReminderWidget::class,
             ])
             ->middleware([
                 EncryptCookies::class,

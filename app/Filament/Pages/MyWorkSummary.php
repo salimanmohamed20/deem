@@ -36,6 +36,7 @@ class MyWorkSummary extends Page
         $user = auth()->user();
         $employee = $user->employee;
 
+        // If user doesn't have an employee record, don't show any data
         if (!$employee) {
             return;
         }
@@ -113,7 +114,8 @@ class MyWorkSummary extends Page
             'completion_rate' => $totalTasks > 0 ? round(($completedTasks / $totalTasks) * 100) : 0,
         ];
 
-        // Today's standup
+        // Today's standup - Check if employee has submitted standup today
+        // This banner shows for ALL employees (not just super admins)
         $this->todayStandup = Standup::where('employee_id', $employeeId)
             ->whereDate('date', $today)
             ->first();
