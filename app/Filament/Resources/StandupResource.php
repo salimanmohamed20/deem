@@ -63,10 +63,10 @@ class StandupResource extends Resource
                             ->suffix('hrs')
                             ->placeholder('e.g. 2.5'),
                         Forms\Components\Textarea::make('what_i_will_do')
-                            ->label('What I Will Do Today')
+                            ->label('What I did Today')
                             ->required()
                             ->rows(3)
-                            ->placeholder('Describe your plans for today'),
+                            ->placeholder('Describe what you did today'),
                         Forms\Components\Textarea::make('blockers')
                             ->label('Blockers / Impediments')
                             ->rows(2)
