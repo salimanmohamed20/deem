@@ -74,7 +74,7 @@ class ActivityFeed extends Page
                     'description' => $task->title,
                     'meta' => $task->project->name,
                     'user' => $task->assignees->first()?->user?->name ?? 'Someone',
-                    'user_initials' => strtoupper(substr($task->assignees->first()?->user?->name ?? 'U', 0, 2)),
+                    'user_initials' => strtoupper(mb_substr($task->assignees->first()?->user?->name ?? 'U', 0, 2)),
                     'timestamp' => $task->updated_at,
                     'link' => route('filament.admin.resources.tasks.edit', $task->id),
                 ]);
@@ -118,7 +118,7 @@ class ActivityFeed extends Page
                     'description' => $task->title,
                     'meta' => $task->project->name,
                     'user' => $task->assignees->first()?->user?->name ?? 'Someone',
-                    'user_initials' => strtoupper(substr($task->assignees->first()?->user?->name ?? 'U', 0, 2)),
+                    'user_initials' => strtoupper(mb_substr($task->assignees->first()?->user?->name ?? 'U', 0, 2)),
                     'timestamp' => $task->updated_at,
                     'link' => route('filament.admin.resources.tasks.edit', $task->id),
                 ]);
@@ -141,7 +141,7 @@ class ActivityFeed extends Page
                     'description' => \Str::limit(strip_tags($comment->comment), 80),
                     'meta' => $comment->task->title,
                     'user' => $comment->author?->user?->name ?? 'Someone',
-                    'user_initials' => strtoupper(substr($comment->author?->user?->name ?? 'U', 0, 2)),
+                    'user_initials' => strtoupper(mb_substr($comment->author?->user?->name ?? 'U', 0, 2)),
                     'timestamp' => $comment->created_at,
                     'link' => route('filament.admin.resources.tasks.edit', $comment->task_id),
                 ]);
@@ -164,7 +164,7 @@ class ActivityFeed extends Page
                     'description' => 'Daily standup for ' . Carbon::parse($standup->date)->format('M j, Y'),
                     'meta' => null,
                     'user' => $standup->employee?->user?->name ?? 'Someone',
-                    'user_initials' => strtoupper(substr($standup->employee?->user?->name ?? 'U', 0, 2)),
+                    'user_initials' => strtoupper(mb_substr($standup->employee?->user?->name ?? 'U', 0, 2)),
                     'timestamp' => $standup->created_at,
                     'link' => route('filament.admin.resources.standups.edit', $standup->id),
                 ]);

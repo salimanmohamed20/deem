@@ -161,7 +161,7 @@ class WeeklyReport extends Page
                 ->get()
                 ->map(fn($e) => [
                     'name' => $e->user->name ?? 'Unknown',
-                    'initials' => strtoupper(substr($e->user->name ?? 'U', 0, 2)),
+                    'initials' => strtoupper(mb_substr($e->user->name ?? 'U', 0, 2)),
                     'completed' => $e->completed_count,
                 ])
                 ->toArray();

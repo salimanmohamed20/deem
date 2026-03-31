@@ -98,7 +98,7 @@ class TeamWorkload extends Page
                 'id' => $employee->id,
                 'name' => $employee->user->name ?? 'Unknown',
                 'job_title' => $employee->jobTitle->name ?? 'No Title',
-                'avatar' => strtoupper(substr($employee->user->name ?? 'U', 0, 2)),
+                'avatar' => strtoupper(mb_substr($employee->user->name ?? 'U', 0, 2)),
                 'total_tasks' => $totalTasks,
                 'todo' => $todoTasks,
                 'in_progress' => $inProgressTasks,

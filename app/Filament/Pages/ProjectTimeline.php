@@ -138,7 +138,7 @@ class ProjectTimeline extends Page
                 'deadline' => $task->deadline,
                 'assignees' => $task->assignees->map(fn($a) => [
                     'name' => $a->user->name ?? 'Unknown',
-                    'initials' => strtoupper(substr($a->user->name ?? 'U', 0, 2)),
+                    'initials' => strtoupper(mb_substr($a->user->name ?? 'U', 0, 2)),
                 ])->toArray(),
                 'left' => $leftPercent,
                 'width' => max(2, $widthPercent), // Minimum 2% width for visibility

@@ -44,7 +44,7 @@ class ProjectProgressWidget extends ChartWidget
             ->get();
 
         $labels = $projects->pluck('name')->map(function ($name) {
-            return strlen($name) > 15 ? substr($name, 0, 15) . '...' : $name;
+            return mb_strlen($name) > 15 ? mb_substr($name, 0, 15) . '...' : $name;
         })->toArray();
         
         $progress = $projects->map(function ($project) {
